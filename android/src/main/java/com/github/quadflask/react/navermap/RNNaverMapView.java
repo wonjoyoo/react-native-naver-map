@@ -32,6 +32,7 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
     private ViewAttacherGroup attacherGroup;
     private long lastTouch = 0;
     private final List<RNNaverMapFeature<?>> features = new ArrayList<>();
+    private boolean isFirst = true;
 
     public RNNaverMapView(@NonNull ThemedReactContext themedReactContext, ReactApplicationContext appContext, FusedLocationSource locationSource, NaverMapOptions naverMapOptions, Bundle instanceStateBundle) {
         super(ReactUtil.getNonBuggyContext(themedReactContext, appContext), naverMapOptions);
