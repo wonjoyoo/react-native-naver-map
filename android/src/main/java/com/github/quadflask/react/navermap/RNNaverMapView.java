@@ -37,6 +37,7 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
         super(ReactUtil.getNonBuggyContext(themedReactContext, appContext), naverMapOptions);
         this.themedReactContext = themedReactContext;
         this.locationSource = locationSource;
+        this.locationSource = new FusedLocationSource(this.themedReactContext.getCurrentActivity(), 1000);
         super.onCreate(instanceStateBundle);
 //        super.onStart();
         getMapAsync(this);
@@ -56,7 +57,14 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
-        this.naverMap.setLocationSource(locationSource);
+        locationSource.setCompassEnabled(true);
+
+        this.naverMap.setLocationSource(this.locationSource);
+
+        this.naverMap.getLocationOverlay().setVisible(true);
+        this.naverMap.getLocationOverlay().setCircleRadius(100);
+        this.naverMap.getUiSettings().setLocationButtonEnabled(true);
+
         this.naverMap.setOnMapClickListener(this);
         this.naverMap.addOnCameraIdleListener(this);
         this.naverMap.addOnCameraChangeListener((reason, animated) -> {
@@ -277,15 +285,22 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
     @Override
     public void onCameraIdle() {
         CameraPosition cameraPosition = naverMap.getCameraPosition();
-
+    
         WritableMap param = Arguments.createMap();
         param.putDouble("latitude", cameraPosition.target.latitude);
         param.putDouble("longitude", cameraPosition.target.longitude);
         param.putDouble("zoom", cameraPosition.zoom);
         param.putArray("contentRegion", ReactUtil.toWritableArray(naverMap.getContentRegion()));
         param.putArray("coveringRegion", ReactUtil.toWritableArray(naverMap.getCoveringRegion()));
-
+    
         emitEvent("onCameraChange", param);
+    
+        if(isFirst == true) {
+            isFirst = false;
+        }else {
+            if (this.naverMap.getLocationTrackingMode() == LocationTrackingMode.None)
+                this.naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+        }
     }
 
     @Override
