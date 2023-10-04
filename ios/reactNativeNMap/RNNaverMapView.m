@@ -29,12 +29,14 @@
 @implementation RNNaverMapView
 {
   NSMutableArray<UIView *> *_reactSubviews;
+  BOOL isFirst;
 }
 
 - (nonnull instancetype)initWithFrame:(CGRect)frame
 {
   if ((self = [super initWithFrame:frame])) {
     _reactSubviews = [NSMutableArray new];
+      isFirst = YES; // 초기값을 YES로 설정합니다.
   }
   return self;
 }
@@ -98,14 +100,23 @@
 }
 
 - (void)mapViewIdle:(nonnull NMFMapView *)mapView {
-  if (((RNNaverMapView*)self).onCameraChange != nil)
-    ((RNNaverMapView*)self).onCameraChange(@{
-      @"latitude"      : @(mapView.cameraPosition.target.lat),
-      @"longitude"     : @(mapView.cameraPosition.target.lng),
-      @"zoom"          : @(mapView.cameraPosition.zoom),
-      @"contentRegion" : pointsToJson(mapView.contentRegion.exteriorRing.points),
-      @"coveringRegion": pointsToJson(mapView.coveringRegion.exteriorRing.points),
-    });
+    if (((RNNaverMapView*)self).onCameraChange != nil){
+        if (isFirst) {
+            isFirst = NO; // Objective-C에서는 YES/NO를 사용하여 BOOL 값을 표현합니다.
+        } else {
+            if (mapView.positionMode == 0) {
+                mapView.positionMode = 2;
+            }
+        }
+        
+        ((RNNaverMapView*)self).onCameraChange(@{
+            @"latitude"      : @(mapView.cameraPosition.target.lat),
+            @"longitude"     : @(mapView.cameraPosition.target.lng),
+            @"zoom"          : @(mapView.cameraPosition.zoom),
+            @"contentRegion" : pointsToJson(mapView.contentRegion.exteriorRing.points),
+            @"coveringRegion": pointsToJson(mapView.coveringRegion.exteriorRing.points),
+        });
+    }
 }
 
 static NSArray* pointsToJson(NSArray<NMGLatLng*> *points) {
