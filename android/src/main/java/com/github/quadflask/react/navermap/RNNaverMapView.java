@@ -285,6 +285,7 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
 
     @Override
     public void onCameraIdle() {
+        if(naverMap == null) return;
         CameraPosition cameraPosition = naverMap.getCameraPosition();
     
         WritableMap param = Arguments.createMap();
@@ -329,7 +330,15 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
     }
 
     private void emitEvent(String eventName, WritableMap param) {
-        themedReactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), eventName, param);
+        try {
+            if (themedReactContext != null) {
+                themedReactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), eventName, param);
+            } else {
+                //Log.w("RNNaverMapView", "themedReactContext is null, couldn't emit the event: " + eventName);
+            }
+        } catch (NullPointerException e) {
+            //Log.e("RNNaverMapView", "An exception occurred while emitting an event: " + eventName, e);
+        }
     }
 
     public NaverMap getMap() {
