@@ -33,9 +33,11 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
     private long lastTouch = 0;
     private final List<RNNaverMapFeature<?>> features = new ArrayList<>();
     private boolean isFirst = true;
+    private NaverMapOptions nOption;
 
     public RNNaverMapView(@NonNull ThemedReactContext themedReactContext, ReactApplicationContext appContext, FusedLocationSource locationSource, NaverMapOptions naverMapOptions, Bundle instanceStateBundle) {
         super(ReactUtil.getNonBuggyContext(themedReactContext, appContext), naverMapOptions);
+        this.nOption = naverMapOptions;
         this.themedReactContext = themedReactContext;
         this.locationSource = locationSource;
         this.locationSource = new FusedLocationSource(this.themedReactContext.getCurrentActivity(), 1000);
@@ -99,6 +101,7 @@ public class RNNaverMapView extends MapView implements OnMapReadyCallback, Naver
             naverMap.moveCamera(CameraUpdate.toCameraPosition(new CameraPosition(latLng, zoomValue, tiltValue, bearingValue))
                     .animate(CameraAnimation.Easing));
         });
+        nOption.camera(new CameraPosition(  latLng, zoom));
     }
 
     @Override
